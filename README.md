@@ -28,7 +28,12 @@ command
 
 ... and discover more commands with `./gradlew tasks`.
 
+### Run the Docker service
+Be sure to have [Docker][] installed and then simply issue:
 
+    docker run -d --name demo-api -p 4567:4567 quay.io/mrolla/demo-api
+
+[Docker]: https://www.docker.com/
 [Gradle]: http://gradle.org
 [`./gradlew`]: http://vimeo.com/34436402
 [Git]: http://help.github.com/set-up-git-redirect

@@ -1,8 +1,23 @@
 FROM java:8
 
-COPY build/libs/api-demo.jar /opt/api-demo/api-demo.jar
+# Copy the source.
+COPY . /source
+WORKDIR /source
+
+# Build.
+ENV GRADLE_USER_HOME /source/.gradle
+RUN ./gradlew build
+
+# Make app dir and copy the artifact.
+RUN mkdir -p /opt/api-demo
+RUN cp build/libs/api-demo.jar /opt/api-demo/api-demo.jar
+
+# Remove sources.
+RUN rm -rf /source
+
+# Start the service.
 WORKDIR /opt/api-demo
 
 EXPOSE 4567
 
-ENTRYPOINT ["java", "-jar", "api-demo.jar"]
+ENTRYPOINT java -jar api-demo.jar
