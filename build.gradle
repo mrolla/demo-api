@@ -30,6 +30,7 @@ task wrapper(type: Wrapper) {
 }
 
 jar {
+  archiveName = "${project.name}.jar"
   from(configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }) {
     exclude "META-INF/*.SF"
     exclude "META-INF/*.DSA"
