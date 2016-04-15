@@ -23,6 +23,8 @@ import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.*;
 
 /**
+ * Test class for {@link ChargeResource} class.
+ *
  * @author Matteo Rolla
  */
 public class ChargeResourceTest {
@@ -60,8 +62,11 @@ public class ChargeResourceTest {
 
     final Request request = mock(Request.class);
     when(request.body()).thenReturn(body);
+    when(request.headers("Authorization")).thenReturn("alice");
 
     final Response response = mock(Response.class);
+
+    when(accountRepository.find("alice")).thenReturn(Optional.of(mock(Account.class)));
 
     final Object object = chargeResource.handleCharges(request, response);
 
@@ -73,59 +78,83 @@ public class ChargeResourceTest {
 
   @Test
   public void testNoSourceAccount() throws Exception {
-    final ChargeRequest chargeRequest = new ChargeRequest(1, "frank", "john");
+    final ChargeRequest chargeRequest = new ChargeRequest(1, "bob");
     final String body = objectMapper.writeValueAsString(chargeRequest);
 
     final Request request = mock(Request.class);
     when(request.body()).thenReturn(body);
+    when(request.headers("Authorization")).thenReturn("alice");
 
     final Response response = mock(Response.class);
 
-    when(accountRepository.find("frank")).thenReturn(Optional.empty());
+    when(accountRepository.find("alice")).thenReturn(Optional.empty());
 
     final Object object = chargeResource.handleCharges(request, response);
 
-    verify(response, times(1)).status(404);
+    verify(response, times(1)).status(401);
     assertThat(object)
         .isInstanceOf(ErrorResponse.class)
-        .hasFieldOrPropertyWithValue("message", "The source account 'frank' does not exist.");
+        .hasFieldOrPropertyWithValue("message", "Authorization error.");
+  }
+
+  @Test
+  public void testNoAuthentication() throws Exception {
+    final ChargeRequest chargeRequest = new ChargeRequest();
+    final String body = objectMapper.writeValueAsString(chargeRequest);
+
+    final Request request = mock(Request.class);
+    when(request.body()).thenReturn(body);
+    when(request.headers("Authorization")).thenReturn(null);
+
+    final Response response = mock(Response.class);
+
+    when(accountRepository.find(null)).thenReturn(Optional.empty());
+
+    final Object object = chargeResource.handleCharges(request, response);
+
+    verify(response, times(1)).status(401);
+    assertThat(object)
+        .isInstanceOf(ErrorResponse.class)
+        .hasFieldOrPropertyWithValue("message", "Authorization error.");
   }
 
   @Test
   public void testNoDestinationAccount() throws Exception {
-    final ChargeRequest chargeRequest = new ChargeRequest(1, "frank", "john");
+    final ChargeRequest chargeRequest = new ChargeRequest(1, "bob");
     final String body = objectMapper.writeValueAsString(chargeRequest);
 
     final Request request = mock(Request.class);
     when(request.body()).thenReturn(body);
+    when(request.headers("Authorization")).thenReturn("alice");
 
     final Response response = mock(Response.class);
 
-    when(accountRepository.find("frank")).thenReturn(Optional.ofNullable(mock(Account.class)));
-    when(accountRepository.find("john")).thenReturn(Optional.empty());
+    when(accountRepository.find("alice")).thenReturn(Optional.ofNullable(mock(Account.class)));
+    when(accountRepository.find("bob")).thenReturn(Optional.empty());
 
     final Object object = chargeResource.handleCharges(request, response);
 
     verify(response, times(1)).status(404);
     assertThat(object)
         .isInstanceOf(ErrorResponse.class)
-        .hasFieldOrPropertyWithValue("message", "The destination account 'john' does not exist.");
+        .hasFieldOrPropertyWithValue("message", "The destination account 'bob' does not exist.");
   }
 
   @Test
   public void testCurrenciesDoNotMatch() throws Exception {
-    final ChargeRequest chargeRequest = new ChargeRequest(1, "frank", "john");
+    final ChargeRequest chargeRequest = new ChargeRequest(1, "bob");
     final String body = objectMapper.writeValueAsString(chargeRequest);
 
     final Request request = mock(Request.class);
     when(request.body()).thenReturn(body);
+    when(request.headers("Authorization")).thenReturn("alice");
 
     final Response response = mock(Response.class);
 
-    when(accountRepository.find("frank"))
-        .thenReturn(Optional.of(new Account("frank", "GBP", 1)));
-    when(accountRepository.find("john"))
-        .thenReturn(Optional.of(new Account("john", "USD", 1)));
+    when(accountRepository.find("alice"))
+        .thenReturn(Optional.of(new Account("alice", "GBP", 1)));
+    when(accountRepository.find("bob"))
+        .thenReturn(Optional.of(new Account("bob", "USD", 1)));
 
     final Object object = chargeResource.handleCharges(request, response);
 
@@ -137,11 +166,12 @@ public class ChargeResourceTest {
 
   @Test
   public void testNotEnoughMoney() throws Exception {
-    final ChargeRequest chargeRequest = new ChargeRequest(12000, "alice", "bob");
+    final ChargeRequest chargeRequest = new ChargeRequest(12000, "bob");
     final String body = objectMapper.writeValueAsString(chargeRequest);
 
     final Request request = mock(Request.class);
     when(request.body()).thenReturn(body);
+    when(request.headers("Authorization")).thenReturn("alice");
 
     final Response response = mock(Response.class);
 
@@ -155,16 +185,17 @@ public class ChargeResourceTest {
     verify(response, times(1)).status(403);
     assertThat(object)
         .isInstanceOf(ErrorResponse.class)
-        .hasFieldOrPropertyWithValue("message", "Sorry, poor 'alice' does not have that much money.");
+        .hasFieldOrPropertyWithValue("message", "Sorry, you don't have that much money.");
   }
 
   @Test
   public void testTransferMoneySuccessfully() throws Exception {
-    final ChargeRequest chargeRequest = new ChargeRequest(9000, "alice", "bob");
+    final ChargeRequest chargeRequest = new ChargeRequest(9000, "bob");
     final String body = objectMapper.writeValueAsString(chargeRequest);
 
     final Request request = mock(Request.class);
     when(request.body()).thenReturn(body);
+    when(request.headers("Authorization")).thenReturn("alice");
 
     final Response response = mock(Response.class);
 

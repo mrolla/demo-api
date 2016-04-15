@@ -15,11 +15,6 @@ public class ChargeRequest implements Validable {
   private int amount;
 
   /**
-   * The id of the source account.
-   */
-  private String source;
-
-  /**
    * The id of the destination account.
    */
   private String destination;
@@ -35,12 +30,10 @@ public class ChargeRequest implements Validable {
    * Full constructor.
    *
    * @param amount      the amount of the charge in a zero-decimal format (i.e. 1.00 EUR becomes 100).
-   * @param source      the account id to withdraw money from.
    * @param destination the account id to deposit money to.
    */
-  public ChargeRequest(final int amount, final String source, final String destination) {
+  public ChargeRequest(final int amount, final String destination) {
     this.amount = amount;
-    this.source = source;
     this.destination = destination;
   }
 
@@ -52,10 +45,6 @@ public class ChargeRequest implements Validable {
     this.amount = amount;
   }
 
-  public String getSource() {
-    return source;
-  }
-
   public String getDestination() {
     return destination;
   }
@@ -64,10 +53,6 @@ public class ChargeRequest implements Validable {
   public Optional<String> isValid() {
     if (amount <= 0) {
       return Optional.of("'amount' must be a non-zero positive number.");
-    }
-
-    if (source == null || source.isEmpty()) {
-      return Optional.of("'source' cannot be null.");
     }
 
     if (destination == null || destination.isEmpty()) {

@@ -63,6 +63,16 @@ public class ChargeResource {
       return new ErrorResponse("Malformed json.");
     }
 
+    // Probably some kind of validation should be also done on the authorization header value.
+    final String authorization = request.headers("Authorization");
+
+    final Optional<Account> maybeAccount = accountRepository.find(authorization);
+
+    if (!maybeAccount.isPresent()) {
+      response.status(401);
+      return new ErrorResponse("Authorization error.");
+    }
+
     final Optional<String> validated = chargeRequest.isValid();
 
     if (validated.isPresent()) {
@@ -70,23 +80,16 @@ public class ChargeResource {
       return new ErrorResponse(validated.get());
     }
 
-    final String sourceId = chargeRequest.getSource();
     final String destinationId = chargeRequest.getDestination();
 
-    final Optional<Account> maybeAccountSource = accountRepository.find(sourceId);
     final Optional<Account> maybeAccountDestination = accountRepository.find(destinationId);
-
-    if (!maybeAccountSource.isPresent()) {
-      response.status(404);
-      return new ErrorResponse("The source account '" + sourceId + "' does not exist.");
-    }
 
     if (!maybeAccountDestination.isPresent()) {
       response.status(404);
       return new ErrorResponse("The destination account '" + destinationId + "' does not exist.");
     }
 
-    final Account source = maybeAccountSource.get();
+    final Account source = maybeAccount.get();
     final Account destination = maybeAccountDestination.get();
 
     final int amount = chargeRequest.getAmount();
@@ -100,7 +103,7 @@ public class ChargeResource {
       destination.deposit(amount);
     } else {
       response.status(403);
-      return new ErrorResponse("Sorry, poor '" + sourceId + "' does not have that much money.");
+      return new ErrorResponse("Sorry, you don't have that much money.");
     }
 
     return new Transaction(autoIncrement.incrementAndGet());

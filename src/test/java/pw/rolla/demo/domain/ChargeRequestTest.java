@@ -27,16 +27,8 @@ public class ChargeRequestTest {
   }
 
   @Test
-  public void testInvalidSource() throws Exception {
-    final ChargeRequest chargeRequest = new ChargeRequest(1, null, "bob");
-    assertThat(chargeRequest.isValid())
-        .isPresent()
-        .contains("'source' cannot be null.");
-  }
-
-  @Test
   public void testInvalidDestination() throws Exception {
-    final ChargeRequest chargeRequest = new ChargeRequest(1, "alice", null);
+    final ChargeRequest chargeRequest = new ChargeRequest(1, null);
     assertThat(chargeRequest.isValid())
         .isPresent()
         .contains("'destination' cannot be null.");
@@ -44,7 +36,7 @@ public class ChargeRequestTest {
 
   @Test
   public void testValidatedSuccessfully() throws Exception {
-    final ChargeRequest chargeRequest = new ChargeRequest(1, "alice", "bob");
+    final ChargeRequest chargeRequest = new ChargeRequest(1, "alice");
     assertThat(chargeRequest.isValid())
         .isEmpty();
   }
