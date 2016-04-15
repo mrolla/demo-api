@@ -1,3 +1,5 @@
+# Demo API ![GitHub Logo](https://travis-ci.org/mrolla/demo-api.svg?branch=master)
+
 ## Building from Source
 The project uses a [Gradle][]-based build system. In the instructions
 below, [`./gradlew`][] is invoked from the root of the source tree and serves as
