@@ -1,4 +1,4 @@
-# Demo API ![GitHub Logo](https://travis-ci.org/mrolla/demo-api.svg?branch=master)
+# Demo API ![GitHub Logo](https://travis-ci.org/mrolla/demo-api.svg?branch=master) [![Docker Repository on Quay](https://quay.io/repository/mrolla/demo-api/status "Docker Repository on Quay")](https://quay.io/repository/mrolla/demo-api)
 
 ## Building from Source
 The project uses a [Gradle][]-based build system. In the instructions
