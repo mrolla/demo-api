@@ -1,0 +1,44 @@
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'idea'
+
+repositories {
+  jcenter()
+}
+
+mainClassName = 'pw.rolla.demo.Bootstrap'
+group = 'pw.rolla.demo'
+version = '1.0.0'
+
+ext {
+  sparkVersion = '2.3'
+  jacksonVersion = '2.7.3'
+}
+
+dependencies {
+  compile("com.sparkjava:spark-core:$sparkVersion")
+  compile("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
+  compile("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
+  compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+  testCompile('junit:junit:4.12')
+  testCompile('org.assertj:assertj-core:3.4.1')
+  testCompile('org.mockito:mockito-core:1.10.19')
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.12'
+}
+
+jar {
+  from(configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }) {
+    exclude "META-INF/*.SF"
+    exclude "META-INF/*.DSA"
+    exclude "META-INF/*.RSA"
+  }
+
+  manifest {
+    attributes 'Implementation-Title': project.name,
+        'Implementation-Version': project.version,
+        'Main-Class': mainClassName
+  }
+}
