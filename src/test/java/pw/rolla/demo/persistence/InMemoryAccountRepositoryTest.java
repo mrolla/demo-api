@@ -11,6 +11,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
+ * Test class for {@link InMemoryAccountRepository} class.
+ *
  * @author Matteo Rolla
  */
 public class InMemoryAccountRepositoryTest {
@@ -20,6 +22,11 @@ public class InMemoryAccountRepositoryTest {
   @Before
   public void setUp() throws Exception {
     repository = new InMemoryAccountRepository();
+  }
+
+  @Test
+  public void testNull() throws Exception {
+    assertThat(repository.find(null)).isEmpty();
   }
 
   @Test
